@@ -17,7 +17,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: appPages,
+        children: buildAppPages(_currentIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

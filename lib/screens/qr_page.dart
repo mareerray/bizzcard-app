@@ -1,51 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
-import '../config.dart';
+import '../services/profile_service.dart';
 
-class QrPage extends StatelessWidget {
+class QrPage extends StatefulWidget {
   final String title;
   final String description;
-  final String? imagePath;
   final Widget icon;
-  final String? url;
+  final String profileKey;
   final String? message;
   final bool showSendCV;
   final bool showShareLink;
+  final bool isVisible;
 
   const QrPage({
     super.key,
     required this.title,
     required this.description,
-    this.imagePath,
     required this.icon,
-    this.url,
+    required this.profileKey,
     this.message,
     this.showSendCV = false,
     this.showShareLink = false,
+    this.isVisible = false,
   });
 
-  Future<void> _openLink() async {
-    if (url == null) return;
+  @override
+  State<QrPage> createState() => _QrPageState();
+}
 
-    final Uri uri = Uri.parse(url!);
+class _QrPageState extends State<QrPage> {
+  String _value = '';
+  bool _loading = true;
+  Map<String, String> _profile = {};
 
-    if (!await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    )) {
-      throw Exception('Could not launch $url');
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  @override
+  void didUpdateWidget(QrPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isVisible && !oldWidget.isVisible) {
+      _loadData();
     }
   }
 
+  Future<void> _loadData() async {
+    final data = await ProfileService.loadProfile();
+    if (!mounted) return;
+    setState(() {
+      _profile = data;
+      _value = data[widget.profileKey] ?? '';
+      _loading = false;
+    });
+  }
+
+  String get _qrData {
+    if (widget.profileKey == 'whatsapp') {
+      final phone = _value.replaceAll('+', '').replaceAll(' ', '');
+      return 'https://wa.me/$phone';
+    }
+    return _value;
+  }
+
+  Future<void> _openLink() async {
+    if (_value.isEmpty) return;
+    final uri = Uri.parse(_value);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
   Future<void> _shareLink() async {
-    if (url == null) return;
+    if (_value.isEmpty) return;
     await SharePlus.instance.share(
       ShareParams(
-        text: url!,
-        subject: title,
+        text: _value,
+        subject: widget.title,
       ),
     );
   }
@@ -55,13 +90,12 @@ class QrPage extends StatelessWidget {
       type: FileType.custom,
       allowedExtensions: ['pdf'],
     );
-
-    if (result == null) return; // user cancelled
+    if (result == null) return;
 
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(result.files.single.path!)],
-        subject: 'CV - ${AppConfig.name}',
+        subject: 'CV - ${_profile['name'] ?? ''}',
         text: 'Please find my CV attached.',
       ),
     );
@@ -69,123 +103,170 @@ class QrPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCvPage = widget.showSendCV;
+
     return Scaffold(
+      backgroundColor: const Color(0xFF0b0a10),
       appBar: AppBar(
         title: Text(
-          title,
+          widget.title,
           style: GoogleFonts.poppins(color: Colors.white),
         ),
         backgroundColor: const Color(0xFF0b0a10),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-
       body: Container(
-        decoration: const BoxDecoration(
-          color:Color(0xFF0b0a10),
-        ),
+        color: const Color(0xFF0b0a10),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconTheme(
-                data: const IconThemeData(
-                  color: Colors.white54,
-                  size: 40,
-                ),
-                child: icon,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                description,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  color: Colors.white54,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(12),
-                alignment: Alignment.center,
-                child: Image.asset(
-                  imagePath ?? 'assets/images/logo_image.png',
-                  width: 300,
-                  height: 300,
-                  fit: BoxFit.contain,
-                ),
-              ),
-                if (url != null) ...[
-                  const SizedBox(height: 15),
-                  Text(
-                    url!,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.white70,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
+          child: _loading
+              ? const CircularProgressIndicator()
+              : SingleChildScrollView(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: _openLink,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          foregroundColor: Colors.white,
+                      IconTheme(
+                        data: const IconThemeData(
+                          color: Colors.white54,
+                          size: 40,
                         ),
-                        child: const Text('Open Link'),
+                        child: widget.icon,
                       ),
-                      if (showShareLink) ...[
-                        const SizedBox(width: 12),   // 👈 gap between buttons
+                      const SizedBox(height: 16),
+                      Text(
+                        widget.title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 22,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.description,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.white54,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+
+                      if (isCvPage) ...[
+                        Text(
+                          'Attach your CV to share \n by email or messaging apps.',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'PDF format recommended.',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.white54,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 18),
                         ElevatedButton.icon(
-                          onPressed: _shareLink,
-                          icon: const Icon(Icons.share),
-                          label: const Text('Share Link'),
+                          onPressed: _sendCV,
+                          icon: const Icon(Icons.send),
+                          label: const Text('Send CV'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ] else ...[
+                      if (_value.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          color: Colors.white,
+                          child: QrImageView(
+                            data: _qrData,
+                            version: QrVersions.auto,
+                            size: 260,
+                          ),
+                        )
+                      else
+                        Text(
+                          'No ${widget.title} link set.\nGo to Edit Profile to add one.',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white54,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      if (_value.isNotEmpty) ...[
+                        const SizedBox(height: 15),
+                        Text(
+                          _value,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: _openLink,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueAccent,
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Open Link'),
+                            ),
+                            if (widget.showShareLink) ...[
+                              const SizedBox(width: 12),
+                              ElevatedButton.icon(
+                                onPressed: _shareLink,
+                                icon: const Icon(Icons.share),
+                                label: const Text('Share Link'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blueAccent,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                      if (widget.message != null) ...[
+                        const SizedBox(height: 15),
+                        Text(
+                          widget.message!,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: Colors.white70,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                      if (widget.showSendCV) ...[
+                        const SizedBox(height: 15),
+                        ElevatedButton.icon(
+                          onPressed: _sendCV,
+                          icon: const Icon(Icons.send),
+                          label: const Text('Send CV'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             foregroundColor: Colors.white,
                           ),
                         ),
                       ],
+                      ],
                     ],
                   ),
-                ],              
-                if (message != null) ...[
-                const SizedBox(height: 15),
-                Text(
-                  message!,
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.white70,
-                  ),
-                  textAlign: TextAlign.center,
                 ),
-              ],
-              if (showSendCV) ...[
-                const SizedBox(height: 15),
-                ElevatedButton.icon(
-                  onPressed: () => _sendCV(),
-                  icon: const Icon(Icons.send),
-                  label: const Text('Send CV'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
-            ],
-          ),
         ),
       ),
     );
   }
 }
+
+

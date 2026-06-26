@@ -24,7 +24,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _linkedInController = TextEditingController();
   final _portfolioController = TextEditingController();
   final _githubController = TextEditingController();
-
+  final _whatsappController = TextEditingController();
   // Image paths
   String? _profileImagePath;
   String? _logoImagePath;
@@ -52,6 +52,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _linkedInController.text = data['linkedIn'] ?? '';
         _portfolioController.text = data['portfolio'] ?? '';
         _githubController.text = data['github'] ?? '';
+        _whatsappController.text = data['whatsapp'] ?? '';
         _profileImagePath = data['profileImage'];
         _logoImagePath = data['logoImage'];
         _loading = false;
@@ -93,6 +94,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       phone: _phoneController.text.trim(),
       location: _locationController.text.trim(),
       linkedIn: _linkedInController.text.trim(),
+      whatsapp: _whatsappController.text.trim(),
       portfolio: _portfolioController.text.trim(),
       github: _githubController.text.trim(),
       profileImagePath: _profileImagePath,
@@ -119,6 +121,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _linkedInController.dispose();
     _portfolioController.dispose();
     _githubController.dispose();
+    _whatsappController.dispose();
     super.dispose();
   }
 
@@ -215,6 +218,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _Field(controller: _githubController,
                 label: 'GitHub URL', icon: Icons.code,
                 keyboard: TextInputType.url),
+            _Field(controller: _whatsappController,
+                label: 'WhatsApp Number', icon: Icons.chat,
+                keyboard: TextInputType.phone),
 
             const SizedBox(height: 40),
           ],

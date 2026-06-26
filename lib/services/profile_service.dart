@@ -12,6 +12,7 @@ class ProfileService {
   static const _linkedIn = 'profile_linkedin';
   static const _portfolio = 'profile_portfolio';
   static const _github = 'profile_github';
+  static const _whatsapp = 'profile_whatsapp';
   static const _profileImage = 'profile_image_path';
   static const _logoImage = 'profile_logo_path';
 
@@ -24,6 +25,7 @@ class ProfileService {
     required String phone,
     required String location,
     required String linkedIn,
+    required String whatsapp,
     required String portfolio,
     required String github,
     String? profileImagePath,
@@ -37,6 +39,7 @@ class ProfileService {
     await prefs.setString(_phone, phone);
     await prefs.setString(_location, location);
     await prefs.setString(_linkedIn, linkedIn);
+    await prefs.setString(_whatsapp, whatsapp);
     await prefs.setString(_portfolio, portfolio);
     await prefs.setString(_github, github);
     if (profileImagePath != null) {
@@ -58,6 +61,7 @@ class ProfileService {
       'phone': prefs.getString(_phone) ?? AppConfig.phone,
       'location': prefs.getString(_location) ?? AppConfig.location,
       'linkedIn': prefs.getString(_linkedIn) ?? AppConfig.linkedInUrl,
+      'whatsapp': prefs.getString(_whatsapp) ?? AppConfig.whatsappNumber,
       'portfolio': prefs.getString(_portfolio) ?? AppConfig.portfolioUrl,
       'github': prefs.getString(_github) ?? AppConfig.githubUrl,
       'profileImage': prefs.getString(_profileImage) ?? AppConfig.profileImage,
