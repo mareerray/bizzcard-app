@@ -153,7 +153,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         strokeWidth: 2, color: Colors.white))
                 : Text('Save',
                     style: GoogleFonts.inter(
-                        color: const Color(0xFF62A8B1),
+                        color: const Color(0xFF077281),
                         fontWeight: FontWeight.w700,
                         fontSize: 16)),
           ),
