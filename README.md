@@ -116,18 +116,19 @@ lib/
 ├── screens/
 │   ├── main_screen.dart
 │   ├── bizz_card_screen.dart
+│   ├── edit_profile_screen.dart
 │   └── qr_page.dart
 ├── data/
 │   └── qr_items.dart
+├── service/
+│   └── profile_service.dart
 assets/
 └── images/
     ├── bgimg.jpg
     ├── Screenshot.png
-    ├── MayureeReunsati.jpeg
-    ├── DevMayuree.png
-    ├── my_linkedin_qr_code.jpg
-    ├── portfolio_qr_code.jpg
-    └── whatsapp_qr_code.jpg
+    ├── logo_image.png
+    ├── profile_image.jpg
+    └── qr_image.png
 ```
 
 ## Sending CV
