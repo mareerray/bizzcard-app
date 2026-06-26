@@ -6,7 +6,9 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +21,7 @@ class MyApp extends StatelessWidget {
           surface:  Color(0xFF0b0a10),
         ),
       ),
+      navigatorObservers: [routeObserver],
       home: MainScreen(),
     );
   }

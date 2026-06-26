@@ -2,42 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../screens/bizz_card_screen.dart';
 import '../screens/qr_page.dart';
-import '../config.dart';
 
-final List<Widget> appPages = [
+List<Widget> buildAppPages(int currentIndex) => [
   const BizzCardScreen(),
-  const QrPage(
+  QrPage(
     title: 'LinkedIn',
     description: 'Scan to view my LinkedIn profile',
-    imagePath: AppConfig.qrImage,
-    icon: FaIcon(FontAwesomeIcons.linkedin),
-    showSendCV: false,       
-    showShareLink: false, 
+    icon: const FaIcon(FontAwesomeIcons.linkedin),
+    profileKey: 'linkedIn',
+    isVisible: currentIndex == 1,
   ),
-  const QrPage(
+  QrPage(
     title: 'My CV',
     description: 'My CV is shared privately.',
-    imagePath: AppConfig.logoImage,
-    icon: Icon(Icons.description_outlined),
+    icon: const Icon(Icons.description_outlined),
     message: 'CV available on request.',
+    profileKey: 'cv',
     showSendCV: true,
-    showShareLink: false,
-  ),  
-  const QrPage(
+    isVisible: currentIndex == 2,
+  ),
+  QrPage(
     title: 'Portfolio',
     description: 'Scan to visit my portfolio',
-    imagePath: AppConfig.qrImage,
-    icon: Icon(Icons.web_outlined),
-    url: AppConfig.portfolioUrl,
-    showSendCV: false,
+    icon: const Icon(Icons.web_outlined),
+    profileKey: 'portfolio',
     showShareLink: true,
+    isVisible: currentIndex == 3,
   ),
-  const QrPage(
+  QrPage(
     title: 'WhatsApp',
     description: 'Scan to add me on WhatsApp',
-    imagePath: AppConfig.qrImage,
-    icon: FaIcon(FontAwesomeIcons.whatsapp),
-    showSendCV: false,
-    showShareLink: false,
+    icon: const FaIcon(FontAwesomeIcons.whatsapp),
+    profileKey: 'whatsapp',
+    isVisible: currentIndex == 4,
   ),
 ];
