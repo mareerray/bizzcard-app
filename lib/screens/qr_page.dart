@@ -6,6 +6,11 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/profile_service.dart';
 
+// Shared palette for QR screens — UI layer only.
+const _kAccent = Color(0xFF077281);
+const _kQrModule = Color(0xFF1E293B);
+const _kSurface = Color(0xFF16151C);
+
 class QrPage extends StatefulWidget {
   final String title;
   final String description;
@@ -101,6 +106,57 @@ class _QrPageState extends State<QrPage> {
     );
   }
 
+
+  Widget _buildStyledQrCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          // color: _kAccent.withValues(alpha: 0.35),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            // color: _kAccent.withValues(alpha: 0.12),
+            blurRadius: 28,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: QrImageView(
+        data: _qrData,
+        version: QrVersions.auto,
+        size: 232,
+        padding: const EdgeInsets.all(4),
+        backgroundColor: Colors.white,
+        errorCorrectionLevel: QrErrorCorrectLevel.H,
+        eyeStyle: const QrEyeStyle(
+          eyeShape: QrEyeShape.circle,
+          color: _kQrModule,
+        ),
+        dataModuleStyle: const QrDataModuleStyle(
+          dataModuleShape: QrDataModuleShape.circle,
+          color: _kQrModule,
+        ),
+        embeddedImageStyle: const QrEmbeddedImageStyle(
+          size: Size(44, 44),
+        ),
+      ),
+    );
+  }
+
+  ButtonStyle get _actionButtonStyle => ElevatedButton.styleFrom(
+        backgroundColor: _kAccent,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final isCvPage = widget.showSendCV;
@@ -126,7 +182,7 @@ class _QrPageState extends State<QrPage> {
                     children: [
                       IconTheme(
                         data: const IconThemeData(
-                          color: Colors.white54,
+                          color: _kAccent,
                           size: 40,
                         ),
                         child: widget.icon,
@@ -174,22 +230,11 @@ class _QrPageState extends State<QrPage> {
                           onPressed: _sendCV,
                           icon: const Icon(Icons.send),
                           label: const Text('Send CV'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            foregroundColor: Colors.white,
-                          ),
+                          style: _actionButtonStyle,
                         ),
                       ] else ...[
                       if (_value.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          color: Colors.white,
-                          child: QrImageView(
-                            data: _qrData,
-                            version: QrVersions.auto,
-                            size: 260,
-                          ),
-                        )
+                        _buildStyledQrCard()
                       else
                         Text(
                           'No ${widget.title} link set.\nGo to Edit Profile to add one.',
@@ -200,25 +245,35 @@ class _QrPageState extends State<QrPage> {
                           textAlign: TextAlign.center,
                         ),
                       if (_value.isNotEmpty) ...[
-                        const SizedBox(height: 15),
-                        Text(
-                          _value,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.white70,
+                        const SizedBox(height: 20),
+                        Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 24),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
                           ),
-                          textAlign: TextAlign.center,
+                          decoration: BoxDecoration(
+                            color: _kSurface,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white12),
+                          ),
+                          child: Text(
+                            _value,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.white70,
+                              height: 1.4,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
                               onPressed: _openLink,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blueAccent,
-                                foregroundColor: Colors.white,
-                              ),
+                              style: _actionButtonStyle,
                               child: const Text('Open Link'),
                             ),
                             if (widget.showShareLink) ...[
@@ -227,10 +282,7 @@ class _QrPageState extends State<QrPage> {
                                 onPressed: _shareLink,
                                 icon: const Icon(Icons.share),
                                 label: const Text('Share Link'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent,
-                                  foregroundColor: Colors.white,
-                                ),
+                                style: _actionButtonStyle,
                               ),
                             ],
                           ],
@@ -253,10 +305,7 @@ class _QrPageState extends State<QrPage> {
                           onPressed: _sendCV,
                           icon: const Icon(Icons.send),
                           label: const Text('Send CV'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            foregroundColor: Colors.white,
-                          ),
+                          style: _actionButtonStyle,
                         ),
                       ],
                       ],
