@@ -24,7 +24,7 @@ migrate_working_dir/
 #.vscode/
 
 # Personal config — never commit this
-lib/config.dart
+# lib/config.dart
 
 # Flutter/Dart/Pub related
 **/doc/api/
