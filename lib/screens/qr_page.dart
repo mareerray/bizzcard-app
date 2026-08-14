@@ -7,9 +7,9 @@ import 'package:file_picker/file_picker.dart';
 import '../services/profile_service.dart';
 
 // Shared palette for QR screens — UI layer only.
-const _kAccent = Color(0xFF077281);
+const _kAccent = Color.fromARGB(255, 32, 75, 206);
 const _kQrModule = Color(0xFF1E293B);
-const _kSurface = Color(0xFF16151C);
+const _kSurface = Color(0xFF0A0A0A);
 
 /// Formats a phone number for display.
 /// Finland (+358): +358 44 555 8888  (+xxx xx xxx xxxx)
@@ -205,17 +205,17 @@ class _QrPageState extends State<QrPage> {
     final isCvPage = widget.showSendCV;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0b0a10),
+      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
         title: Text(
           widget.title,
           style: GoogleFonts.poppins(color: Colors.white),
         ),
-        backgroundColor: const Color(0xFF0b0a10),
+        backgroundColor: const Color(0xFF0A0A0A),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Container(
-        color: const Color(0xFF0b0a10),
+        color: const Color(0xFF0A0A0A),
         child: Center(
           child: _loading
               ? const CircularProgressIndicator()

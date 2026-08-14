@@ -108,7 +108,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0b0a10),
+        backgroundColor: const Color(0xFF0A0A0A),
         centerTitle: true,
         toolbarHeight: 60,
         title: Text(
@@ -185,7 +185,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
                 width: double.infinity,
                 height: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF111010).withValues(alpha: 0.8),
+                  color: const Color(0xFF0A0A0A).withValues(alpha: 0.8),
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
