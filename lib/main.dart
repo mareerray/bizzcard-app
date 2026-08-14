@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(                        
         brightness: Brightness.dark,
-        scaffoldBackgroundColor:  Color(0xFF0b0a10),
+        scaffoldBackgroundColor:  Color(0xFF0A0A0A),
         colorScheme: ColorScheme.dark(
-          surface:  Color(0xFF0b0a10),
+          surface:  Color(0xFF0A0A0A),
         ),
       ),
       navigatorObservers: [routeObserver],
