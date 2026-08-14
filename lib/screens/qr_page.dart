@@ -11,6 +11,40 @@ const _kAccent = Color(0xFF077281);
 const _kQrModule = Color(0xFF1E293B);
 const _kSurface = Color(0xFF16151C);
 
+/// Formats a phone number for display.
+/// Finland (+358): +358 44 555 8888  (+xxx xx xxx xxxx)
+String _formatPhoneDisplay(String raw) {
+  final digits = raw.replaceAll(RegExp(r'\D'), '');
+  if (digits.isEmpty) return raw.trim();
+
+  if (digits.startsWith('358')) {
+    final national = digits.substring(3);
+    if (national.length >= 9) {
+      return '+358 ${national.substring(0, 2)} '
+          '${national.substring(2, 5)} ${national.substring(5, 9)}';
+    }
+    return national.isEmpty ? '+358' : '+358 $national';
+  }
+
+  if (digits.startsWith('1') && digits.length >= 11) {
+    final national = digits.substring(1);
+    return '+1 ${national.substring(0, 3)} '
+        '${national.substring(3, 6)} ${national.substring(6)}';
+  }
+
+  final ccLength = digits.length > 10 ? digits.length - 10 : 2;
+  final country = digits.substring(0, ccLength);
+  final national = digits.substring(ccLength);
+  if (national.isEmpty) return '+$country';
+
+  final buffer = StringBuffer('+$country ');
+  for (var i = 0; i < national.length; i += 3) {
+    if (i > 0) buffer.write(' ');
+    buffer.write(national.substring(i, (i + 3).clamp(0, national.length)));
+  }
+  return buffer.toString().trim();
+}
+
 class QrPage extends StatefulWidget {
   final String title;
   final String description;
@@ -68,15 +102,24 @@ class _QrPageState extends State<QrPage> {
 
   String get _qrData {
     if (widget.profileKey == 'whatsapp') {
-      final phone = _value.replaceAll('+', '').replaceAll(' ', '');
+      final phone = _value.replaceAll(RegExp(r'\D'), '');
       return 'https://wa.me/$phone';
+    }
+    return _value;
+  }
+
+  String get _displayValue {
+    if (widget.profileKey == 'whatsapp') {
+      return _formatPhoneDisplay(_value);
     }
     return _value;
   }
 
   Future<void> _openLink() async {
     if (_value.isEmpty) return;
-    final uri = Uri.parse(_value);
+    final uri = widget.profileKey == 'whatsapp'
+        ? Uri.parse(_qrData)
+        : Uri.parse(_value);
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
@@ -84,7 +127,7 @@ class _QrPageState extends State<QrPage> {
     if (_value.isEmpty) return;
     await SharePlus.instance.share(
       ShareParams(
-        text: _value,
+        text: widget.profileKey == 'whatsapp' ? _displayValue : _value,
         subject: widget.title,
       ),
     );
@@ -258,7 +301,7 @@ class _QrPageState extends State<QrPage> {
                             border: Border.all(color: Colors.white12),
                           ),
                           child: Text(
-                            _value,
+                            _displayValue,
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: Colors.white70,
