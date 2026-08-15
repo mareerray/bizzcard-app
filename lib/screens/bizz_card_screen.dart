@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../services/profile_service.dart';
-import 'edit_profile_screen.dart';
+import '../widgets/app_background.dart';
+import 'edit_profile_screen.dart' show EditProfileScreen, kWebImagePrefix;
 
 // Route observer for detecting when this screen becomes visible again
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -43,7 +46,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
     if (!mounted) return;
 
     setState(() {
-      _isReady = false; 
+      _isReady = false;
       _name = data['name'] ?? '';
       _jobTitle = data['jobTitle'] ?? '';
       _company = data['company'] ?? '';
@@ -57,34 +60,71 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
     await _precacheImages();
   }
 
+  // Returns true only for a real native file path that precacheImage
+  // can safely open via File(). Web-encoded and asset paths are excluded.
+  bool _isNativeFilePath(String path) {
+    if (kIsWeb) return false;
+    if (path.startsWith('assets/')) return false;
+    if (path.startsWith(kWebImagePrefix)) return false;
+    return true;
+  }
+
   // Precache images for smooth loading
   Future<void> _precacheImages() async {
-    final isProfileFile = !_profileImage.startsWith('assets/');
-    final isLogoFile = !_logoImage.startsWith('assets/');
-
-    await Future.wait([
+    final futures = <Future<void>>[
       precacheImage(const AssetImage('assets/images/bgimg.jpg'), context),
-      if (isProfileFile)
-        precacheImage(FileImage(File(_profileImage)), context)
-      else
-        precacheImage(AssetImage(_profileImage), context),
-      if (isLogoFile)
-        precacheImage(FileImage(File(_logoImage)), context)
-      else
-        precacheImage(AssetImage(_logoImage), context),
-    ]);
+    ];
+
+    if (_isNativeFilePath(_profileImage)) {
+      futures.add(precacheImage(FileImage(File(_profileImage)), context));
+    } else if (_profileImage.startsWith('assets/')) {
+      futures.add(precacheImage(AssetImage(_profileImage), context));
+    }
+    // Web-encoded (webimg:) images are already in memory — no precache needed.
+
+    if (_isNativeFilePath(_logoImage)) {
+      futures.add(precacheImage(FileImage(File(_logoImage)), context));
+    } else if (_logoImage.startsWith('assets/')) {
+      futures.add(precacheImage(AssetImage(_logoImage), context));
+    }
+
+    try {
+      await Future.wait(futures);
+    } catch (_) {
+      // Don't block rendering if a stale/bad path fails to precache.
+    }
 
     if (mounted) {
       setState(() => _isReady = true);
     }
   }
 
-  // Helper to build profile or logo image
+  // Helper to build profile or logo image — handles asset paths, native
+  // file paths, and web base64-encoded ("webimg:") strings.
   ImageProvider _imageProvider(String path) {
+    if (path.isEmpty) {
+      return const AssetImage('assets/images/profile_image.jpg');
+    }
+
+    if (path.startsWith(kWebImagePrefix)) {
+      try {
+        final bytes = base64Decode(path.substring(kWebImagePrefix.length));
+        return MemoryImage(bytes);
+      } catch (_) {
+        return const AssetImage('assets/images/profile_image.jpg');
+      }
+    }
+
     if (path.startsWith('assets/')) {
       return AssetImage(path);
     }
-    return FileImage(File(path));
+
+    if (!kIsWeb) {
+      return FileImage(File(path));
+    }
+
+    // Web fallback safety net — should not normally be reached.
+    return const AssetImage('assets/images/profile_image.jpg');
   }
 
   @override
@@ -107,6 +147,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // ── AppBar ─────────────────────────────────────────────────────────────────────
       appBar: AppBar(
         backgroundColor: const Color(0xFF0A0A0A),
         centerTitle: true,
@@ -173,20 +214,9 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
           ),
         ),
       ),
+      // ── Body ─────────────────────────────────────────────────────────────────────
       body: _isReady
-          ? Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/bgimg.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0A0A0A).withValues(alpha: 0.8),
-                ),
+          ? AppBackground(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     return SingleChildScrollView(
@@ -291,8 +321,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
                     );
                   },
                 ),
-              ),
-            )
+              )
           : const Center(
               child: CircularProgressIndicator(color: Colors.white)),
     );
@@ -321,4 +350,3 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
-

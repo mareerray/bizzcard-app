@@ -1,8 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/profile_service.dart';
+
+/// Prefix used to mark a stored value as base64-encoded image bytes
+/// (only ever produced/consumed on web, where there is no real filesystem).
+const String kWebImagePrefix = 'webimg:';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -25,7 +31,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _portfolioController = TextEditingController();
   final _githubController = TextEditingController();
   final _whatsappController = TextEditingController();
-  // Image paths
+
+  // Image values — on native this holds a file path, on web it holds
+  // a string prefixed with kWebImagePrefix followed by base64 bytes.
   String? _profileImagePath;
   String? _logoImagePath;
 
@@ -63,14 +71,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // Pick image from gallery
+  // Pick image from gallery — branches by platform since web has no
+  // real filesystem and must keep the image as in-memory bytes.
   Future<void> _pickImage({required bool isProfile}) async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
     );
-    if (picked != null) {
+    if (picked == null) return;
+
+    if (kIsWeb) {
+      final bytes = await picked.readAsBytes();
+      // Guard against filling up localStorage with huge images.
+      if (bytes.length > 900 * 1024) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Please choose an image smaller than ~900 KB.'),
+            ),
+          );
+        }
+        return;
+      }
+      final encoded = kWebImagePrefix + base64Encode(bytes);
+      setState(() {
+        if (isProfile) {
+          _profileImagePath = encoded;
+        } else {
+          _logoImagePath = encoded;
+        }
+      });
+    } else {
       setState(() {
         if (isProfile) {
           _profileImagePath = picked.path;
@@ -247,7 +279,6 @@ class _ImagePickerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isFile = imagePath != null && !imagePath!.startsWith('assets/');
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -260,11 +291,7 @@ class _ImagePickerRow extends StatelessWidget {
         child: Row(children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: isFile
-                ? Image.file(File(imagePath!),
-                    width: 52, height: 52, fit: BoxFit.cover)
-                : Image.asset(fallbackAsset,
-                    width: 52, height: 52, fit: BoxFit.cover),
+            child: _buildImage(),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -282,6 +309,38 @@ class _ImagePickerRow extends StatelessWidget {
         ]),
       ),
     );
+  }
+
+  Widget _buildImage() {
+    const size = 52.0;
+
+    // No custom image saved yet — use the bundled default asset.
+    if (imagePath == null || imagePath!.isEmpty) {
+      return Image.asset(fallbackAsset, width: size, height: size, fit: BoxFit.cover);
+    }
+
+    // Web-picked image: stored as base64 bytes, must use Image.memory.
+    if (imagePath!.startsWith(kWebImagePrefix)) {
+      try {
+        final bytes = base64Decode(imagePath!.substring(kWebImagePrefix.length));
+        return Image.memory(bytes, width: size, height: size, fit: BoxFit.cover);
+      } catch (_) {
+        return Image.asset(fallbackAsset, width: size, height: size, fit: BoxFit.cover);
+      }
+    }
+
+    // A bundled asset path was saved (e.g. default config value).
+    if (imagePath!.startsWith('assets/')) {
+      return Image.asset(imagePath!, width: size, height: size, fit: BoxFit.cover);
+    }
+
+    // Native platforms: a real file path picked from the device.
+    if (!kIsWeb) {
+      return Image.file(File(imagePath!), width: size, height: size, fit: BoxFit.cover);
+    }
+
+    // Fallback safety net — should not normally be reached.
+    return Image.asset(fallbackAsset, width: size, height: size, fit: BoxFit.cover);
   }
 }
 
