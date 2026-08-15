@@ -67,7 +67,7 @@ void _showThemedSnackBar(
           borderRadius: BorderRadius.circular(14),
           side: const BorderSide(color: Colors.white12),
         ),
-        duration: const Duration(seconds: 20),
+        duration: const Duration(seconds: 12),
         content: Row(
           children: [
             Icon(icon, color: _kAccent, size: 20),
