@@ -11,7 +11,17 @@ import '../services/profile_service.dart';
 const String kWebImagePrefix = 'webimg:';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  /// True when shown as the forced first-run setup screen (via AppGate),
+  /// rather than opened from the card screen's edit icon. Hides the
+  /// back button and calls [onComplete] instead of popping the route.
+  final bool isOnboarding;
+  final VoidCallback? onComplete;
+
+  const EditProfileScreen({
+    super.key,
+    this.isOnboarding = false,
+    this.onComplete,
+  });
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -20,7 +30,6 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Text controllers — one for each field
   final _nameController = TextEditingController();
   final _jobTitleController = TextEditingController();
   final _companyController = TextEditingController();
@@ -32,8 +41,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _githubController = TextEditingController();
   final _whatsappController = TextEditingController();
 
-  // Image values — on native this holds a file path, on web it holds
-  // a string prefixed with kWebImagePrefix followed by base64 bytes.
   String? _profileImagePath;
   String? _logoImagePath;
 
@@ -46,7 +53,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _loadExistingProfile();
   }
 
-  // Pre-fill the form with saved data
   Future<void> _loadExistingProfile() async {
     try {
       final data = await ProfileService.loadProfile();
@@ -66,13 +72,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _loading = false;
       });
     } catch (e) {
-      // If anything fails, stop loading anyway so screen is not stuck
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  // Pick image from gallery — branches by platform since web has no
-  // real filesystem and must keep the image as in-memory bytes.
   Future<void> _pickImage({required bool isProfile}) async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
@@ -83,7 +86,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (kIsWeb) {
       final bytes = await picked.readAsBytes();
-      // Guard against filling up localStorage with huge images.
       if (bytes.length > 900 * 1024) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -113,7 +115,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // Save and go back
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
@@ -135,15 +136,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() => _saving = false);
 
-    if (mounted) {
-      // Return true so the card screen knows to refresh
+    if (!mounted) return;
+
+    if (widget.isOnboarding) {
+      widget.onComplete?.call();
+    } else {
       Navigator.pop(context, true);
     }
   }
 
   @override
   void dispose() {
-    // Always dispose controllers to avoid memory leaks
     _nameController.dispose();
     _jobTitleController.dispose();
     _companyController.dispose();
@@ -170,9 +173,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E1E1E),
-        title: Text('Edit Profile',
-            style: GoogleFonts.inter(
-                color: Colors.white, fontWeight: FontWeight.w600)),
+        automaticallyImplyLeading: !widget.isOnboarding,
+        title: Text(
+          widget.isOnboarding ? 'Complete Your Profile' : 'Edit Profile',
+          style: GoogleFonts.inter(
+              color: Colors.white, fontWeight: FontWeight.w600),
+        ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           TextButton(
@@ -183,7 +189,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     height: 18,
                     child: CircularProgressIndicator(
                         strokeWidth: 2, color: Colors.white))
-                : Text('Save',
+                : Text(widget.isOnboarding ? 'Continue' : 'Save',
                     style: GoogleFonts.inter(
                         color: const Color.fromARGB(255, 13, 157, 176),
                         fontWeight: FontWeight.w700,
@@ -196,8 +202,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
+            if (widget.isOnboarding) ...[
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: const Color(0xFF62A8B1).withValues(alpha: 0.4)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.qr_code_2, color: Color(0xFF62A8B1)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Fill in the required fields below to generate '
+                        'your QR codes and unlock your card.',
+                        style: GoogleFonts.inter(
+                            color: Colors.white70, fontSize: 13, height: 1.3),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
-            // ── Profile image picker ──────────────────────────────
             _ImagePickerRow(
               label: 'Profile Photo',
               imagePath: _profileImagePath,
@@ -207,7 +238,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 12),
 
-            // ── Logo image picker ─────────────────────────────────
             _ImagePickerRow(
               label: 'Logo / Brand Image',
               imagePath: _logoImagePath,
@@ -217,12 +247,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
             const SizedBox(height: 28),
 
-            // ── Personal details ──────────────────────────────────
             _SectionLabel(label: 'Personal Details'),
             const SizedBox(height: 12),
             _Field(controller: _nameController,
-                label: 'Full Name', icon: Icons.person_outline,
-                validator: (v) => v!.isEmpty ? 'Name is required' : null),
+                label: 'Full Name *', icon: Icons.person_outline,
+                validator: (v) =>
+                    v!.trim().isEmpty ? 'Name is required' : null),
             _Field(controller: _jobTitleController,
                 label: 'Job Title', icon: Icons.work_outline),
             _Field(controller: _companyController,
@@ -231,28 +261,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 label: 'Email', icon: Icons.email_outlined,
                 keyboard: TextInputType.emailAddress),
             _Field(controller: _phoneController,
-                label: 'Phone', icon: Icons.phone_outlined,
-                keyboard: TextInputType.phone),
+                label: 'Phone *', icon: Icons.phone_outlined,
+                keyboard: TextInputType.phone,
+                validator: (v) =>
+                    v!.trim().isEmpty ? 'Phone number is required' : null),
             _Field(controller: _locationController,
                 label: 'Location', icon: Icons.location_on_outlined),
 
             const SizedBox(height: 28),
 
-            // ── Social links ──────────────────────────────────────
             _SectionLabel(label: 'Social Links'),
             const SizedBox(height: 12),
             _Field(controller: _linkedInController,
-                label: 'LinkedIn URL', icon: Icons.link,
-                keyboard: TextInputType.url),
+                label: 'LinkedIn URL *', icon: Icons.link,
+                keyboard: TextInputType.url,
+                validator: (v) =>
+                    v!.trim().isEmpty ? 'LinkedIn URL is required' : null),
             _Field(controller: _portfolioController,
-                label: 'Portfolio URL', icon: Icons.language,
-                keyboard: TextInputType.url),
+                label: 'Portfolio URL *', icon: Icons.language,
+                keyboard: TextInputType.url,
+                validator: (v) =>
+                    v!.trim().isEmpty ? 'Portfolio URL is required' : null),
             _Field(controller: _githubController,
                 label: 'GitHub URL', icon: Icons.code,
                 keyboard: TextInputType.url),
             _Field(controller: _whatsappController,
-                label: 'WhatsApp Number', icon: Icons.chat,
-                keyboard: TextInputType.phone),
+                label: 'WhatsApp Number *', icon: Icons.chat,
+                keyboard: TextInputType.phone,
+                validator: (v) =>
+                    v!.trim().isEmpty ? 'WhatsApp number is required' : null),
 
             const SizedBox(height: 40),
           ],
@@ -314,12 +351,10 @@ class _ImagePickerRow extends StatelessWidget {
   Widget _buildImage() {
     const size = 52.0;
 
-    // No custom image saved yet — use the bundled default asset.
     if (imagePath == null || imagePath!.isEmpty) {
       return Image.asset(fallbackAsset, width: size, height: size, fit: BoxFit.cover);
     }
 
-    // Web-picked image: stored as base64 bytes, must use Image.memory.
     if (imagePath!.startsWith(kWebImagePrefix)) {
       try {
         final bytes = base64Decode(imagePath!.substring(kWebImagePrefix.length));
@@ -329,17 +364,14 @@ class _ImagePickerRow extends StatelessWidget {
       }
     }
 
-    // A bundled asset path was saved (e.g. default config value).
     if (imagePath!.startsWith('assets/')) {
       return Image.asset(imagePath!, width: size, height: size, fit: BoxFit.cover);
     }
 
-    // Native platforms: a real file path picked from the device.
     if (!kIsWeb) {
       return Image.file(File(imagePath!), width: size, height: size, fit: BoxFit.cover);
     }
 
-    // Fallback safety net — should not normally be reached.
     return Image.asset(fallbackAsset, width: size, height: size, fit: BoxFit.cover);
   }
 }

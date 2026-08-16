@@ -16,6 +16,17 @@ class ProfileService {
   static const _profileImage = 'profile_image_path';
   static const _logoImage = 'profile_logo_path';
 
+  // Fields that MUST be filled in before the main card screen is shown.
+  // Used by hasCompletedRequiredSetup() to gate first-run access via
+  // AppGate — these map to keys returned by loadProfile().
+  static const List<String> requiredFields = [
+    'name',
+    'phone',
+    'linkedIn',
+    'whatsapp',
+    'portfolio',
+  ];
+
   // Save all profile fields at once
   static Future<void> saveProfile({
     required String name,
@@ -69,10 +80,39 @@ class ProfileService {
     };
   }
 
-  // Check if user has saved a profile before
+  // Check if user has saved a profile before (legacy — kept for any
+  // existing call sites, but prefer hasCompletedRequiredSetup for the
+  // onboarding gate specifically, since a user could have saved once
+  // with only optional fields filled in).
   static Future<bool> hasProfile() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey(_name);
+  }
+
+  // Returns true only if every field in requiredFields has a
+  // non-empty value — either saved by the user, or already provided
+  // via AppConfig. Used by AppGate at app startup to decide whether
+  // to show the onboarding/edit-profile gate before the main screen.
+  static Future<bool> hasCompletedRequiredSetup() async {
+    final data = await loadProfile();
+    for (final key in requiredFields) {
+      final value = data[key];
+      if (value == null || value.trim().isEmpty) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // Returns the subset of requiredFields that are still empty — useful
+  // if you want to show the user exactly what's missing, rather than
+  // a generic "please complete your profile" message.
+  static Future<List<String>> missingRequiredFields() async {
+    final data = await loadProfile();
+    return requiredFields.where((key) {
+      final value = data[key];
+      return value == null || value.trim().isEmpty;
+    }).toList();
   }
 
   // Clear everything (useful for a reset/logout feature later)
