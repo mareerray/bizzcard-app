@@ -31,7 +31,7 @@ class AppBackground extends StatelessWidget {
     super.key,
     required this.child,
     this.overlayOpacity = 0.5,
-    this.blurSigma = 6.0,
+    this.blurSigma = 7.0,
   });
 
   @override

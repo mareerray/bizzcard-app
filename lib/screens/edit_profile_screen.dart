@@ -111,8 +111,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
   final _linkedInController = TextEditingController();
-  final _portfolioController = TextEditingController();
   final _githubController = TextEditingController();
+  final _websiteController = TextEditingController();
   final _whatsappController = TextEditingController();
 
   String? _profileImagePath;
@@ -141,10 +141,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             (data['linkedIn'] == null || data['linkedIn']!.isEmpty)
             ? 'https://linkedin.com/in/'
             : data['linkedIn']!;
-        _portfolioController.text =
-            (data['portfolio'] == null || data['portfolio']!.isEmpty)
+        _websiteController.text =
+            (data['website'] == null || data['website']!.isEmpty)
             ? 'https://'
-            : data['portfolio']!;
+            : data['website']!;
         _githubController.text =
             (data['github'] == null || data['github']!.isEmpty)
             ? 'https://github.com/'
@@ -209,9 +209,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       email: _emailController.text.trim(),
       phone: _normalizePhone(_phoneController.text),
       location: _normalizeLocation(_locationController.text),
+      website: _websiteController.text.trim(),
       linkedIn: _linkedInController.text.trim(),
       whatsapp: _normalizePhone(_whatsappController.text),
-      portfolio: _portfolioController.text.trim(),
       github: _githubController.text.trim(),
       profileImagePath: _profileImagePath,
       logoImagePath: _logoImagePath,
@@ -237,7 +237,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _phoneController.dispose();
     _locationController.dispose();
     _linkedInController.dispose();
-    _portfolioController.dispose();
+    _websiteController.dispose();
     _githubController.dispose();
     _whatsappController.dispose();
     super.dispose();
@@ -418,7 +418,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   v, 'https://linkedin.com/in/', 'LinkedIn URL'),
             ),
             _Field(
-              controller: _portfolioController,
+              controller: _websiteController,
               label: 'Your Website *',
               icon: Icons.language,
               keyboard: TextInputType.url,

@@ -12,7 +12,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +23,7 @@ class _MainScreenState extends State<MainScreen> {
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         backgroundColor: const Color(0xFF0A0A0A),
-        selectedItemColor: Color.fromARGB(255, 32, 75, 206),
+        selectedItemColor: Color.fromARGB(255, 32, 133, 206),
 
         unselectedItemColor: Colors.white54,
         type: BottomNavigationBarType.fixed,
@@ -39,11 +38,11 @@ class _MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.description_outlined),
-            label: 'CV',
+            label: 'Portfolio',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.web_outlined),
-            label: 'Portfolio',
+            label: 'Website',
           ),
           BottomNavigationBarItem(
             icon: FaIcon(FontAwesomeIcons.whatsapp),

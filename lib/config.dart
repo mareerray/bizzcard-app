@@ -21,7 +21,7 @@ class AppConfig {
   static const String phone = "";
   static const String location = "";
   static const String linkedInUrl = "";
-  static const String portfolioUrl = "";
+  static const String websiteUrl = "";
   static const String githubUrl = "";
   static const String whatsappNumber = "";
 
