@@ -18,10 +18,15 @@ class ProfileService {
 
   // Fields that MUST be filled in before the main card screen is shown.
   // Used by hasCompletedRequiredSetup() to gate first-run access via
-  // AppGate — these map to keys returned by loadProfile().
+  // AppGate. Only GitHub stays optional — everything else is required
+  // so the card never looks sparse.
   static const List<String> requiredFields = [
     'name',
+    'jobTitle',
+    'company',
+    'email',
     'phone',
+    'location',
     'linkedIn',
     'whatsapp',
     'portfolio',
@@ -83,7 +88,7 @@ class ProfileService {
   // Check if user has saved a profile before (legacy — kept for any
   // existing call sites, but prefer hasCompletedRequiredSetup for the
   // onboarding gate specifically, since a user could have saved once
-  // with only optional fields filled in).
+  // with only some fields filled in).
   static Future<bool> hasProfile() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey(_name);
