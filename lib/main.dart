@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'app_gate.dart';
 import 'screens/welcome_screen.dart';
+import 'route_observer.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
