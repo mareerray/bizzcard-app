@@ -322,11 +322,11 @@ class _QrPageState extends State<QrPage> {
       ..addAll(grouped.keys.where((c) => !_categoryOrder.contains(c)));
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: Colors.white10),
       ),
       child: Column(
@@ -335,38 +335,38 @@ class _QrPageState extends State<QrPage> {
           final items = grouped[category]!;
           final isLast = category == orderedCategories.last;
           return Padding(
-            padding: EdgeInsets.only(bottom: isLast ? 0 : 18),
+            padding: EdgeInsets.only(bottom: isLast ? 0 : 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   category.toUpperCase(),
                   style: GoogleFonts.inter(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
                     color: _kAccent,
-                    letterSpacing: 1.1,
+                    letterSpacing: 0.9,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 5),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 5,
+                  runSpacing: 5,
                   children: items.map((skill) {
                     return Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
+                        horizontal: 10,
+                        vertical: 5,
                       ),
                       decoration: BoxDecoration(
                         color: _kSurface,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: Colors.white12),
                       ),
                       child: Text(
                         skill.name,
                         style: GoogleFonts.inter(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: Colors.white70,
                         ),
                       ),
