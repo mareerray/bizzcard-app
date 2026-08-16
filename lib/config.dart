@@ -3,15 +3,15 @@ class AppConfig {
   static const String jobTitle = "Software Engineer";
   static const String company = "Tech Corp";
   static const String email = "coco.lee@example.com";
-  static const String phone = "+1 234 567 8900";
-  static const String location = "San Francisco, CA";
+  static const String phone = "+358 34 567 8900";
+  static const String location = "Mariehamn, Åland Islands";
   static const String linkedInUrl = "https://www.linkedin.com/in/coco-lee";
   static const String websiteUrl = "https://coco-lee.example.com";
   static const String githubUrl = "";
-  static const String whatsappNumber = "+1 234 567 8900";
+  static const String whatsappNumber = "+358 34 567 8900";
 
   // Keep these pointed at real bundled defaults — never empty.
-  static const String profileImage = "assets/images/brand_img.png";
+  static const String profileImage = "assets/images/test_3.jpg";
   static const String logoImage = "assets/images/logo_image.png";
   static const String qrImage = "assets/images/qr_image.png";
 }

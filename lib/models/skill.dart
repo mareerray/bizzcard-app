@@ -1,7 +1,7 @@
 class Skill {
   final String name;
   final String category; // e.g. 'Frontend', 'Backend', 'Database', 'Platform'
-  final String? logoAsset; // path to a local asset icon, or null for text-only chip
+  final String? logoAsset; // Unused for now, but could be used to display a logo for the skill.
 
   const Skill({required this.name, required this.category, this.logoAsset});
 

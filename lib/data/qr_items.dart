@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../screens/bizz_card_screen.dart';
 import '../screens/qr_page.dart';
-import '../models/skill.dart';
 
 List<Widget> buildAppPages(int currentIndex) => [
   const BizzCardScreen(),
@@ -20,22 +19,7 @@ List<Widget> buildAppPages(int currentIndex) => [
     icon: const Icon(Icons.description_outlined),
     // message: 'CV available on request.',
     profileKey: 'CV',
-    showSendCV: true,
-    skills: const [
-      Skill(name: 'Flutter', category: 'Frontend'),
-      Skill(name: 'Dart', category: 'Frontend'),
-      Skill(name: 'React', category: 'Frontend'),
-      Skill(name: 'TypeScript', category: 'Frontend'),
-      Skill(name: 'Angular', category: 'Frontend'),
-      Skill(name: 'Java', category: 'Backend'),
-      Skill(name: 'Go', category: 'Backend'),
-      Skill(name: 'REST APIs', category: 'Backend'),
-      Skill(name: 'Supabase', category: 'Database'),
-      Skill(name: 'MongoDB', category: 'Database'),
-      Skill(name: 'Firebase', category: 'Database'),
-      Skill(name: 'Vercel', category: 'Platform'),
-      Skill(name: 'Git', category: 'Platform'),
-    ],
+    showPortfolio: true,
     isVisible: currentIndex == 2,
   ),
   QrPage(

@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/profile_service.dart';
 import '../widgets/app_background.dart';
+import '../widgets/skills_editor_dialog.dart';
 import '../models/skill.dart';
 
 // Shared palette for QR screens — UI layer only.
@@ -96,7 +97,7 @@ class QrPage extends StatefulWidget {
   final String profileKey;
   final String? message;
   final List<Skill>? skills;
-  final bool showSendCV;
+  final bool showPortfolio;
   final bool showShareLink;
   final bool isVisible;
 
@@ -108,7 +109,7 @@ class QrPage extends StatefulWidget {
     required this.profileKey,
     this.message,
     this.skills,
-    this.showSendCV = false,
+    this.showPortfolio = false,
     this.showShareLink = false,
     this.isVisible = false,
   });
@@ -122,6 +123,7 @@ class _QrPageState extends State<QrPage> {
   bool _loading = true;
   bool _sendingCv = false;
   Map<String, String> _profile = {};
+  List<Skill> _skills = [];
 
   @override
   void initState() {
@@ -139,10 +141,12 @@ class _QrPageState extends State<QrPage> {
 
   Future<void> _loadData() async {
     final data = await ProfileService.loadProfile();
+    final skills = await ProfileService.loadSkills();
     if (!mounted) return;
     setState(() {
       _profile = data;
       _value = data[widget.profileKey] ?? '';
+      _skills = skills;
       _loading = false;
     });
   }
@@ -160,6 +164,16 @@ class _QrPageState extends State<QrPage> {
       return _formatPhoneDisplay(_value);
     }
     return _value;
+  }
+
+  Future<void> _openSkillsEditor() async {
+    final result = await showDialog<List<Skill>>(
+      context: context,
+      builder: (_) => SkillsEditorDialog(initialSkills: _skills),
+    );
+    if (result == null) return;
+    setState(() => _skills = result);
+    await ProfileService.saveSkills(result);
   }
 
   Future<void> _openLink() async {
@@ -363,7 +377,7 @@ Widget _buildSkillsSection(List<Skill> skills) {
 
   @override
   Widget build(BuildContext context) {
-    final isCvPage = widget.showSendCV;
+    final isPortfolioPage = widget.showPortfolio;
 
     return Scaffold(
       appBar: AppBar(
@@ -373,6 +387,13 @@ Widget _buildSkillsSection(List<Skill> skills) {
         ),
         backgroundColor: const Color(0xFF0A0A0A),
         iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          if (widget.showPortfolio)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: _openSkillsEditor,
+            ),
+        ],
       ),
       body: AppBackground(
         child: Center(
@@ -406,10 +427,9 @@ Widget _buildSkillsSection(List<Skill> skills) {
                       ),
                       const SizedBox(height: 24),
 
-                      if (isCvPage) ...[
-                        if (widget.skills != null &&
-                            widget.skills!.isNotEmpty) ...[
-                          _buildSkillsSection(widget.skills!),
+                      if (isPortfolioPage) ...[
+                        if (_skills.isNotEmpty) ...[
+                          _buildSkillsSection(_skills),
                           const SizedBox(height: 24),
                         ],
                         Text(
@@ -498,7 +518,7 @@ Widget _buildSkillsSection(List<Skill> skills) {
                             textAlign: TextAlign.center,
                           ),
                         ],
-                        if (widget.showSendCV) ...[
+                        if (widget.showPortfolio) ...[
                           const SizedBox(height: 15),
                           _sendCvButton(),
                         ],

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config.dart';
+import '../models/skill.dart';
 
 class ProfileService {
   // Keys for storing each field
@@ -15,6 +17,7 @@ class ProfileService {
   static const _whatsapp = 'profile_whatsapp';
   static const _profileImage = 'profile_image_path';
   static const _logoImage = 'profile_logo_path';
+  static const _skills = 'profile_skills';
 
   // Fields that MUST be filled in before the main card screen is shown.
   // Used by hasCompletedRequiredSetup() to gate first-run access via
@@ -124,5 +127,25 @@ class ProfileService {
   static Future<void> clearProfile() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  }
+
+  static Future<void> saveSkills(List<Skill> skills) async {
+    final prefs = await SharedPreferences.getInstance();
+    final encoded = jsonEncode(skills.map((s) => s.toJson()).toList());
+    await prefs.setString(_skills, encoded);
+  }
+
+  static Future<List<Skill>> loadSkills() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_skills);
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final decoded = jsonDecode(raw) as List;
+      return decoded
+          .map((e) => Skill.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return [];
+    }
   }
 }
