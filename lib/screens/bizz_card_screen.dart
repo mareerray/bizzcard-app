@@ -167,8 +167,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
             onPressed: () async {
               final updated = await Navigator.push<bool>(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => const EditProfileScreen()),
+                MaterialPageRoute(builder: (_) => const EditProfileScreen()),
               );
               if (updated == true) {
                 await _loadProfile();
@@ -217,113 +216,142 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
       // ── Body ─────────────────────────────────────────────────────────────────────
       body: _isReady
           ? AppBackground(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // ── Profile + logo images ──────────────
-                                Stack(
-                                  alignment: Alignment.bottomRight,
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    Container(
-                                      width: 220,
-                                      height: 220,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // ── Profile + logo images ──────────────
+                              Stack(
+                                alignment: Alignment.bottomRight,
+                                clipBehavior: Clip.none,
+                                children: [
+                                  Container(
+                                    width: 220,
+                                    height: 220,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: _imageProvider(_profileImage),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: -5,
+                                    bottom: -5,
+                                    child: Container(
+                                      width: 65,
+                                      height: 65,
                                       decoration: BoxDecoration(
+                                        color: const Color.fromARGB(
+                                          254,
+                                          49,
+                                          49,
+                                          52,
+                                        ),
                                         shape: BoxShape.circle,
                                         image: DecorationImage(
-                                          image: _imageProvider(_profileImage),
+                                          image: _imageProvider(_logoImage),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
                                     ),
-                                    Positioned(
-                                      right: -5,
-                                      bottom: -5,
-                                      child: Container(
-                                        width: 65,
-                                        height: 65,
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                              254, 49, 49, 52),
-                                          shape: BoxShape.circle,
-                                          image: DecorationImage(
-                                            image: _imageProvider(_logoImage),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+
+                              // ── Name ──────────────────────────────
+                              Text(
+                                _name,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 30.0,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 26.0),
+
+                              // ── Job title ─────────────────────────
+                              Text(
+                                '"$_jobTitle"',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18.0,
+                                  color: Colors.white70,
+                                  // color: const Color.fromARGB(255, 32, 75, 206),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 18.0),
+
+                              // ── Company ───────────────────────────
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.business_center,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _company,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18.0,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-
-                                // ── Name ──────────────────────────────
-                                Text(
-                                  _name,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 30.0,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                    textAlign: TextAlign.center,
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 26.0),
+                                ],
+                              ),
+                              const SizedBox(height: 18.0),
+                              // _InfoRow(
+                              //     icon: Icons.business_center,
+                              //     text: _company),
+                              // const SizedBox(height: 16.0),
 
-                                // ── Job title ─────────────────────────
-                                Text(
-                                  _jobTitle,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18.0,
-                                    color: Colors.white,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 18.0),
+                              // ── Email ─────────────────────────────
+                              _InfoRow(
+                                icon: Icons.email_outlined,
+                                text: _email,
+                              ),
+                              const SizedBox(height: 16.0),
 
-                                // ── Company ───────────────────────────
-                                _InfoRow(
-                                    icon: Icons.business_center,
-                                    text: _company),
-                                const SizedBox(height: 16.0),
+                              // ── Phone ─────────────────────────────
+                              _InfoRow(
+                                icon: Icons.phone_outlined,
+                                text: _phone,
+                              ),
+                              const SizedBox(height: 16.0),
 
-                                // ── Email ─────────────────────────────
-                                _InfoRow(
-                                    icon: Icons.email_outlined,
-                                    text: _email),
-                                const SizedBox(height: 16.0),
-
-                                // ── Phone ─────────────────────────────
-                                _InfoRow(
-                                    icon: Icons.phone_outlined,
-                                    text: _phone),
-                                const SizedBox(height: 16.0),
-
-                                // ── Location ──────────────────────────
-                                _InfoRow(
-                                    icon: Icons.location_on_outlined,
-                                    text: _location),
-                                const SizedBox(height: 20),
-                              ],
-                            ),
+                              // ── Location ──────────────────────────
+                              _InfoRow(
+                                icon: Icons.location_on_outlined,
+                                text: _location,
+                              ),
+                              const SizedBox(height: 20),
+                            ],
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
-              )
-          : const Center(
-              child: CircularProgressIndicator(color: Colors.white)),
+                    ),
+                  );
+                },
+              ),
+            )
+          : const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
   }
 }
