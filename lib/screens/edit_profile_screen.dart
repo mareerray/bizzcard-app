@@ -66,7 +66,10 @@ String _normalizeLocation(String raw) {
 /// can't save just the bare prefix (e.g. "https://linkedin.com/in/")
 /// with nothing actually added after it.
 String? _validateUrlBeyondPrefix(
-    String? value, String prefix, String fieldLabel) {
+  String? value,
+  String prefix,
+  String fieldLabel,
+) {
   final trimmed = value?.trim() ?? '';
   if (trimmed.isEmpty) return '$fieldLabel is required';
   if (trimmed == prefix || trimmed.length <= prefix.length) {
@@ -396,6 +399,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               keyboard: TextInputType.phone,
               hintText: '+358 44 555 8888',
               validator: (v) => _validatePhone(v, 'Phone number'),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[\d\s+\-]')),
+              ],
             ),
             _Field(
               controller: _locationController,
@@ -415,7 +421,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               icon: Icons.link,
               keyboard: TextInputType.url,
               validator: (v) => _validateUrlBeyondPrefix(
-                  v, 'https://linkedin.com/in/', 'LinkedIn URL'),
+                v,
+                'https://linkedin.com/in/',
+                'LinkedIn URL',
+              ),
             ),
             _Field(
               controller: _websiteController,
@@ -438,6 +447,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               keyboard: TextInputType.phone,
               hintText: '+358 44 555 8888',
               validator: (v) => _validatePhone(v, 'WhatsApp number'),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[\d\s+\-]')),
+              ],
             ),
 
             const SizedBox(height: 40),
