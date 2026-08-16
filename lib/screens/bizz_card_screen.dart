@@ -9,10 +9,8 @@ import '../widgets/app_background.dart';
 import '../widgets/bizz_app_bar.dart';
 import '../widgets/bizz_drawer.dart';
 import '../constants.dart'; // for kWebImagePrefix
+import '../route_observer.dart';
 import 'edit_profile_screen.dart' show EditProfileScreen;
-
-// Route observer for detecting when this screen becomes visible again
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 class BizzCardScreen extends StatefulWidget {
   const BizzCardScreen({super.key});
@@ -21,7 +19,7 @@ class BizzCardScreen extends StatefulWidget {
   State<BizzCardScreen> createState() => _BizzCardScreenState();
 }
 
-class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
+class _BizzCardScreenState extends State<BizzCardScreen> {
   bool _isReady = false;
 
   // Profile data
@@ -39,6 +37,18 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
   void initState() {
     super.initState();
     _loadProfile();
+    refreshSignal.addListener(_onRefreshSignal);
+  }
+
+  void _onRefreshSignal() {
+    debugPrint('BizzCardScreen: refresh signal received, reloading');
+    _loadProfile();
+  }
+
+  @override
+  void dispose() {
+    refreshSignal.removeListener(_onRefreshSignal);
+    super.dispose();
   }
 
   // Load profile from ProfileService
@@ -127,23 +137,6 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
 
     // Web fallback safety net — should not normally be reached.
     return const AssetImage('assets/images/profile_image.jpg');
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
-  }
-
-  @override
-  void didPopNext() {
-    _loadProfile();
-  }
-
-  @override
-  void dispose() {
-    routeObserver.unsubscribe(this);
-    super.dispose();
   }
 
   @override

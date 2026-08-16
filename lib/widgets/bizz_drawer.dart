@@ -27,6 +27,17 @@ class BizzDrawer extends StatelessWidget {
             ),
             const Divider(color: Colors.white12, height: 1),
             ListTile(
+              leading: const Icon(Icons.info_outline, color: Colors.white70),
+              title: Text('Info', style: GoogleFonts.inter(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const InfoScreen()),
+                );
+              },
+            ),            
+            ListTile(
               leading: const Icon(Icons.settings_outlined, color: Colors.white70),
               title: Text('Settings', style: GoogleFonts.inter(color: Colors.white)),
               onTap: () {
@@ -37,17 +48,7 @@ class BizzDrawer extends StatelessWidget {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.white70),
-              title: Text('Info', style: GoogleFonts.inter(color: Colors.white)),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const InfoScreen()),
-                );
-              },
-            ),
+
           ],
         ),
       ),

@@ -58,7 +58,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         saved = picked.path;
       }
       await ProfileService.saveCustomBackground(saved);
-      if (mounted) setState(() => _backgroundPath = saved);
+      if (mounted) {
+        setState(() => _backgroundPath = saved);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Background updated.')),
+        );
+        await Future.delayed(const Duration(milliseconds: 600));
+        if (mounted) Navigator.pop(context);
+      }
     } finally {
       if (mounted) setState(() => _pickingBackground = false);
     }
@@ -66,7 +73,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _resetBackground() async {
     await ProfileService.saveCustomBackground(null);
-    setState(() => _backgroundPath = null);
+    if (mounted) {
+      setState(() => _backgroundPath = null);
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -123,12 +133,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     )
                   : null),
           ),
-
-          // subtitle: Text(
-          //   'Coming soon',
-          //   style: GoogleFonts.inter(color: Colors.white38, fontSize: 12),
-          // ),
-          // enabled: false,
         ],
       ),
     );

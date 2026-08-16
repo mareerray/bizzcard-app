@@ -5,28 +5,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../constants.dart'; // for kWebImagePrefix
 
-/// Shared background wrapper — wraps any screen's body content with the
-/// same bgimg.jpg background image and a frosted dark overlay used on
-/// BizzCardScreen, so every screen looks visually consistent without
-/// duplicating the code.
-///
-/// Uses ImageFiltered (blurs its own child directly) instead of
-/// BackdropFilter (which samples an existing rendered layer beneath
-/// it). BackdropFilter reliably rendered as solid black on real mobile
-/// GPUs in this app's Flutter-web CanvasKit build, even though it
-/// worked fine on desktop Chrome and in Chrome's mobile-viewport
-/// emulation. ImageFiltered blurs the image widget itself rather than
-/// sampling a composited layer, which avoids that backend-specific
-/// compositing path entirely.
-///
-/// Usage:
-///   Scaffold(
-///     appBar: AppBar(...),
-///     body: AppBackground(
-///       child: YourScreenContent(),
-///     ),
-///   )
-
 class AppBackground extends StatelessWidget {
   final Widget child;
   final double overlayOpacity;
@@ -89,3 +67,26 @@ class AppBackground extends StatelessWidget {
     );
   }
 }
+
+
+/// Shared background wrapper — wraps any screen's body content with the
+/// same bgimg.jpg background image and a frosted dark overlay used on
+/// BizzCardScreen, so every screen looks visually consistent without
+/// duplicating the code.
+///
+/// Uses ImageFiltered (blurs its own child directly) instead of
+/// BackdropFilter (which samples an existing rendered layer beneath
+/// it). BackdropFilter reliably rendered as solid black on real mobile
+/// GPUs in this app's Flutter-web CanvasKit build, even though it
+/// worked fine on desktop Chrome and in Chrome's mobile-viewport
+/// emulation. ImageFiltered blurs the image widget itself rather than
+/// sampling a composited layer, which avoids that backend-specific
+/// compositing path entirely.
+///
+/// Usage:
+///   Scaffold(
+///     appBar: AppBar(...),
+///     body: AppBackground(
+///       child: YourScreenContent(),
+///     ),
+///   )

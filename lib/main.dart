@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [routeObserver],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
@@ -22,7 +23,6 @@ class MyApp extends StatelessWidget {
           surface: const Color(0xFF0A0A0A),
         ),
       ),
-      navigatorObservers: [routeObserver],
       home: FutureBuilder<bool>(
         future: WelcomeScreen.hasSeenWelcome(),
         builder: (context, snapshot) {

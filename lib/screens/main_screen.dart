@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../data/qr_items.dart';
+import '../route_observer.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -9,7 +10,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with RouteAware {
   int _currentIndex = 0;
   late final PageController _pageController;
 
@@ -20,9 +21,22 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void didPopNext() {
+    refreshSignal.value++;
+  }
+
+  void _onPageChanged(int index) {
+    setState(() => _currentIndex = index);
+    if (index == 0) {
+      debugPrint('MainScreen: bumping refreshSignal, value will be ${refreshSignal.value + 1}');
+      refreshSignal.value++; // Card tab became active — refresh it
+    }
   }
 
   void _onNavTap(int index) {
@@ -32,10 +46,16 @@ class _MainScreenState extends State<MainScreen> {
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeInOut,
     );
+    if (index == 0) {
+      refreshSignal.value++;
+    }
   }
 
-  void _onPageChanged(int index) {
-    setState(() => _currentIndex = index);
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -50,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
         currentIndex: _currentIndex,
         onTap: _onNavTap,
         backgroundColor: const Color(0xFF0A0A0A),
-        selectedItemColor: const Color.fromARGB(255, 32, 75, 206),
+        selectedItemColor: const Color.fromARGB(255, 32, 133, 206),
         unselectedItemColor: Colors.white54,
         type: BottomNavigationBarType.fixed,
         items: const [
