@@ -1,8 +1,15 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 /// Shared background wrapper — wraps any screen's body content with the
-/// same bgimg.jpg background image and dark overlay used on BizzCardScreen,
-/// so every screen looks visually consistent without duplicating the code.
+/// same bgimg.jpg background image and a frosted dark overlay used on
+/// BizzCardScreen, so every screen looks visually consistent without
+/// duplicating the code.
+///
+/// Unlike a flat high-opacity color layer (which can render as
+/// near-solid black on some displays), this uses a real blur
+/// (BackdropFilter) plus a lighter tint — the image stays visibly
+/// present while text on top stays readable.
 ///
 /// Usage:
 ///   Scaffold(
@@ -14,11 +21,13 @@ import 'package:flutter/material.dart';
 class AppBackground extends StatelessWidget {
   final Widget child;
   final double overlayOpacity;
+  final double blurSigma;
 
   const AppBackground({
     super.key,
     required this.child,
-    this.overlayOpacity = 0.9,
+    this.overlayOpacity = 0.55,
+    this.blurSigma = 6.0,
   });
 
   @override
@@ -30,13 +39,16 @@ class AppBackground extends StatelessWidget {
           fit: BoxFit.cover,
         ),
       ),
-      child: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFF0A0A0A).withValues(alpha: overlayOpacity),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0A0A0A).withValues(alpha: overlayOpacity),
+          ),
+          child: child,
         ),
-        child: child,
       ),
     );
   }
