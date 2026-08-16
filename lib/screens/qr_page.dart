@@ -7,6 +7,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/profile_service.dart';
 import '../widgets/app_background.dart';
+import '../widgets/bizz_app_bar.dart';
+import '../widgets/bizz_drawer.dart';
 import '../widgets/skills_editor_dialog.dart';
 import '../models/skill.dart';
 
@@ -386,13 +388,9 @@ class _QrPageState extends State<QrPage> {
     final isPortfolioPage = widget.showPortfolio;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.title,
-          style: GoogleFonts.poppins(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF0A0A0A),
-        iconTheme: const IconThemeData(color: Colors.white),
+      drawer: const BizzDrawer(),
+      // ── AppBar ─────────────────────────────────────────────────────────────────────
+      appBar: BizzAppBar(
         actions: [
           if (isPortfolioPage)
             TextButton.icon(

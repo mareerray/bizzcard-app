@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
 import '../services/profile_service.dart';
 import '../widgets/app_background.dart';
+import '../widgets/bizz_app_bar.dart';
+import '../widgets/bizz_drawer.dart';
 import 'edit_profile_screen.dart' show EditProfileScreen, kWebImagePrefix;
 
 // Route observer for detecting when this screen becomes visible again
@@ -30,7 +30,6 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
   String _email = '';
   String _phone = '';
   String _location = '';
-  String _githubUrl = '';
   String _profileImage = '';
   String _logoImage = '';
 
@@ -53,7 +52,6 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
       _email = data['email'] ?? '';
       _phone = data['phone'] ?? '';
       _location = data['location'] ?? '';
-      _githubUrl = data['github'] ?? AppConfig.githubUrl;
       _profileImage = data['profileImage'] ?? AppConfig.profileImage;
       _logoImage = data['logoImage'] ?? AppConfig.logoImage;
     });
@@ -147,73 +145,26 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const BizzDrawer(),
       // ── AppBar ─────────────────────────────────────────────────────────────────────
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0A0A0A),
-        centerTitle: true,
-        toolbarHeight: 60,
-        title: Text(
-          'BizzCard',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.white54),
-            tooltip: 'Edit Profile',
-            onPressed: () async {
-              final updated = await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(builder: (_) => const EditProfileScreen()),
-              );
-              if (updated == true) {
-                await _loadProfile();
-              }
-            },
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(20),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '© 2026 Mayuree Reunsati',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white70,
-                    fontSize: 11,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                GestureDetector(
-                  onTap: () async {
-                    final Uri uri = Uri.parse(_githubUrl);
-                    if (!await launchUrl(
-                      uri,
-                      mode: LaunchMode.externalApplication,
-                    )) {
-                      throw Exception('Could not launch $uri');
-                    }
-                  },
-                  child: const FaIcon(
-                    FontAwesomeIcons.github,
-                    color: Colors.white70,
-                    size: 12,
-                  ),
-                ),
-              ],
+      appBar: BizzAppBar(
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit_outlined, color: Colors.white54),
+              tooltip: 'Edit Profile',
+              onPressed: () async {
+                final updated = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                );
+                if (updated == true) {
+                  await _loadProfile();
+                }
+              },
             ),
-          ),
-        ),
-      ),
-      // ── Body ─────────────────────────────────────────────────────────────────────
+          ],
+        ),      
+      // ── Body ──────────────────────────────────────────────────────────────────────
       body: _isReady
           ? AppBackground(
               child: LayoutBuilder(
