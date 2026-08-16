@@ -298,64 +298,70 @@ class _QrPageState extends State<QrPage> {
     return grouped;
   }
 
-Widget _buildSkillsSection(List<Skill> skills) {
-  final grouped = _groupByCategory(skills);
-  final orderedCategories = _categoryOrder.where(grouped.containsKey).toList()
-    ..addAll(grouped.keys.where((c) => !_categoryOrder.contains(c)));
+  Widget _buildSkillsSection(List<Skill> skills) {
+    final grouped = _groupByCategory(skills);
+    final orderedCategories = _categoryOrder.where(grouped.containsKey).toList()
+      ..addAll(grouped.keys.where((c) => !_categoryOrder.contains(c)));
 
-  return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 20),
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-    decoration: BoxDecoration(
-      color: Colors.black.withValues(alpha: 0.7),
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: Colors.white10),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: orderedCategories.map((category) {
-        final items = grouped[category]!;
-        final isLast = category == orderedCategories.last;
-        return Padding(
-          padding: EdgeInsets.only(bottom: isLast ? 0 : 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                category.toUpperCase(),
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: _kAccent,
-                  letterSpacing: 1.1,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: orderedCategories.map((category) {
+          final items = grouped[category]!;
+          final isLast = category == orderedCategories.last;
+          return Padding(
+            padding: EdgeInsets.only(bottom: isLast ? 0 : 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category.toUpperCase(),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: _kAccent,
+                    letterSpacing: 1.1,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: items.map((skill) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: _kSurface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white12),
-                    ),
-                    child: Text(
-                      skill.name,
-                      style: GoogleFonts.inter(fontSize: 12, color: Colors.white70),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    ),
-  );
-}
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: items.map((skill) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _kSurface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: Text(
+                        skill.name,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
 
   Widget _sendCvButton() {
     return ElevatedButton.icon(
@@ -388,10 +394,18 @@ Widget _buildSkillsSection(List<Skill> skills) {
         backgroundColor: const Color(0xFF0A0A0A),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          if (widget.showPortfolio)
-            IconButton(
-              icon: const Icon(Icons.edit),
+          if (isPortfolioPage)
+            TextButton.icon(
               onPressed: _openSkillsEditor,
+              icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.white54),
+              label: Text(
+                'Skills',
+                style: GoogleFonts.inter(
+                  color: Colors.white54,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
         ],
       ),

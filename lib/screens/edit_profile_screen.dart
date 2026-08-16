@@ -18,9 +18,10 @@ String? _validatePhone(String? value, String fieldLabel) {
   final trimmed = value?.trim() ?? '';
   if (trimmed.isEmpty) return '$fieldLabel is required';
   final digitsOnly = trimmed.replaceAll(RegExp(r'[\s\-]'), '');
-  final pattern = RegExp(r'^\+358\d{9}$');
+  // E.164: + followed by 8 -15 digits total (cover all real country codes)
+  final pattern = RegExp(r'^\+\d{8,15}$');
   if (!pattern.hasMatch(digitsOnly)) {
-    return 'Use format: +358 44 555 8888';
+    return 'Use international format: +country code and number';
   }
   return null;
 }
@@ -30,10 +31,33 @@ String? _validatePhone(String? value, String fieldLabel) {
 /// without spaces/dashes).
 String _normalizePhone(String raw) {
   final digits = raw.replaceAll(RegExp(r'[\s\-]'), '');
-  if (!digits.startsWith('+358') || digits.length != 13) return raw.trim();
-  final national = digits.substring(4);
-  return '+358 ${national.substring(0, 2)} '
-      '${national.substring(2, 5)} ${national.substring(5)}';
+  if (!digits.startsWith('+')) return raw.trim();
+
+  if (digits.startsWith('+358') && digits.length == 13) {
+    final national = digits.substring(4);
+    return '+358 ${national.substring(0, 2)} '
+        '${national.substring(2, 5)} ${national.substring(5)}';
+  }
+
+  if (digits.startsWith('+1') && digits.length == 12) {
+    final national = digits.substring(2);
+    return '+1 ${national.substring(0, 3)} '
+        '${national.substring(3, 6)} ${national.substring(6)}';
+  }
+
+  // Generic fallback for any other country code
+  final withoutPlus = digits.substring(1);
+  final ccLength = withoutPlus.length > 10 ? withoutPlus.length - 10 : 2;
+  final country = withoutPlus.substring(0, ccLength);
+  final national = withoutPlus.substring(ccLength);
+  if (national.isEmpty) return '+$country';
+
+  final buffer = StringBuffer('+$country ');
+  for (var i = 0; i < national.length; i += 3) {
+    if (i > 0) buffer.write(' ');
+    buffer.write(national.substring(i, (i + 3).clamp(0, national.length)));
+  }
+  return buffer.toString().trim();
 }
 
 /// Requires "City, Country" format — a non-empty part before the
@@ -397,11 +421,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               label: 'Phone *',
               icon: Icons.phone_outlined,
               keyboard: TextInputType.phone,
-              hintText: '+358 44 555 8888',
+              hintText: '+358 44 555 8888 or +1 415 555 0100',
               validator: (v) => _validatePhone(v, 'Phone number'),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[\d\s+\-]')),
-              ],
             ),
             _Field(
               controller: _locationController,
@@ -445,11 +466,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               label: 'WhatsApp Number *',
               icon: Icons.chat,
               keyboard: TextInputType.phone,
-              hintText: '+358 44 555 8888',
+              hintText: '+358 44 555 8888 or +1 415 555 0100',
               validator: (v) => _validatePhone(v, 'WhatsApp number'),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[\d\s+\-]')),
-              ],
             ),
 
             const SizedBox(height: 40),
@@ -608,7 +626,6 @@ class _Field extends StatelessWidget {
   final TextInputType keyboard;
   final String? Function(String?)? validator;
   final String? hintText;
-  final List<TextInputFormatter>? inputFormatters;
 
   const _Field({
     required this.controller,
@@ -617,7 +634,6 @@ class _Field extends StatelessWidget {
     this.keyboard = TextInputType.text,
     this.validator,
     this.hintText,
-    this.inputFormatters,
   });
 
   @override
@@ -628,7 +644,6 @@ class _Field extends StatelessWidget {
         controller: controller,
         keyboardType: keyboard,
         validator: validator,
-        inputFormatters: inputFormatters,
         style: GoogleFonts.inter(color: Colors.white),
         decoration: InputDecoration(
           labelText: label,
