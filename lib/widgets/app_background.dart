@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../constants.dart'; // for kWebImagePrefix
 
 /// Shared background wrapper — wraps any screen's body content with the
 /// same bgimg.jpg background image and a frosted dark overlay used on
@@ -22,25 +26,49 @@ import 'package:flutter/material.dart';
 ///       child: YourScreenContent(),
 ///     ),
 ///   )
+
 class AppBackground extends StatelessWidget {
   final Widget child;
   final double overlayOpacity;
   final double blurSigma;
+  final String? customImagePath;
 
   const AppBackground({
     super.key,
     required this.child,
     this.overlayOpacity = 0.5,
     this.blurSigma = 7.0,
+    this.customImagePath,
   });
+
+  Widget _buildBackgroundImage() {
+    const fallback = 'assets/images/bgimg.jpg';
+
+    if (customImagePath == null || customImagePath!.isEmpty) {
+      return Image.asset(fallback, fit: BoxFit.cover);
+    }
+
+    if (customImagePath!.startsWith(kWebImagePrefix)) {
+      try {
+        final bytes = base64Decode(customImagePath!.substring(kWebImagePrefix.length));
+        return Image.memory(bytes, fit: BoxFit.cover);
+      } catch (_) {
+        return Image.asset(fallback, fit: BoxFit.cover);
+      }
+    }
+
+    if (!kIsWeb) {
+      return Image.file(File(customImagePath!), fit: BoxFit.cover);
+    }
+
+    return Image.asset(fallback, fit: BoxFit.cover);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Blur applied directly to the image widget — not to a
-        // composited backdrop layer.
         Positioned.fill(
           child: ImageFiltered(
             imageFilter: ImageFilter.blur(
@@ -48,10 +76,7 @@ class AppBackground extends StatelessWidget {
               sigmaY: blurSigma,
               tileMode: TileMode.decal,
             ),
-            child: Image.asset(
-              'assets/images/bgimg.jpg',
-              fit: BoxFit.cover,
-            ),
+            child: _buildBackgroundImage(),
           ),
         ),
         Positioned.fill(

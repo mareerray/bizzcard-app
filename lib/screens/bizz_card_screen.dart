@@ -8,7 +8,8 @@ import '../services/profile_service.dart';
 import '../widgets/app_background.dart';
 import '../widgets/bizz_app_bar.dart';
 import '../widgets/bizz_drawer.dart';
-import 'edit_profile_screen.dart' show EditProfileScreen, kWebImagePrefix;
+import '../constants.dart'; // for kWebImagePrefix
+import 'edit_profile_screen.dart' show EditProfileScreen;
 
 // Route observer for detecting when this screen becomes visible again
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
@@ -32,6 +33,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
   String _location = '';
   String _profileImage = '';
   String _logoImage = '';
+  String? _backgroundPath;
 
   @override
   void initState() {
@@ -42,6 +44,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
   // Load profile from ProfileService
   Future<void> _loadProfile() async {
     final data = await ProfileService.loadProfile();
+    final background = await ProfileService.loadCustomBackground();
     if (!mounted) return;
 
     setState(() {
@@ -54,6 +57,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
       _location = data['location'] ?? '';
       _profileImage = data['profileImage'] ?? AppConfig.profileImage;
       _logoImage = data['logoImage'] ?? AppConfig.logoImage;
+      _backgroundPath = background;
     });
     await _precacheImages();
   }
@@ -69,16 +73,20 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
 
   // Precache images for smooth loading
   Future<void> _precacheImages() async {
-    final futures = <Future<void>>[
-      precacheImage(const AssetImage('assets/images/bgimg.jpg'), context),
-    ];
+    final futures = <Future<void>>[];
+
+    if (_backgroundPath != null && _isNativeFilePath(_backgroundPath!)) {
+      futures.add(precacheImage(FileImage(File(_backgroundPath!)), context));
+    } else if (_backgroundPath == null) {
+      futures.add(precacheImage(const AssetImage('assets/images/bgimg.jpg'), context));
+    }
+    // webimg: custom backgrounds are already in memory — no precache needed.
 
     if (_isNativeFilePath(_profileImage)) {
       futures.add(precacheImage(FileImage(File(_profileImage)), context));
     } else if (_profileImage.startsWith('assets/')) {
       futures.add(precacheImage(AssetImage(_profileImage), context));
     }
-    // Web-encoded (webimg:) images are already in memory — no precache needed.
 
     if (_isNativeFilePath(_logoImage)) {
       futures.add(precacheImage(FileImage(File(_logoImage)), context));
@@ -88,13 +96,9 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
 
     try {
       await Future.wait(futures);
-    } catch (_) {
-      // Don't block rendering if a stale/bad path fails to precache.
-    }
+    } catch (_) {}
 
-    if (mounted) {
-      setState(() => _isReady = true);
-    }
+    if (mounted) setState(() => _isReady = true);
   }
 
   // Helper to build profile or logo image — handles asset paths, native
@@ -167,6 +171,7 @@ class _BizzCardScreenState extends State<BizzCardScreen> with RouteAware {
       // ── Body ──────────────────────────────────────────────────────────────────────
       body: _isReady
           ? AppBackground(
+            customImagePath: _backgroundPath,
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(

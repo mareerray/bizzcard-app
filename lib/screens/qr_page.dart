@@ -11,6 +11,7 @@ import '../widgets/bizz_app_bar.dart';
 import '../widgets/bizz_drawer.dart';
 import '../widgets/skills_editor_dialog.dart';
 import '../models/skill.dart';
+import '../constants.dart'; // for kWebImagePrefix
 
 // Shared palette for QR screens — UI layer only.
 const _kAccent = Color.fromARGB(255, 32, 133, 206);
@@ -126,6 +127,7 @@ class _QrPageState extends State<QrPage> {
   bool _sendingCv = false;
   Map<String, String> _profile = {};
   List<Skill> _skills = [];
+  String? _backgroundPath;
 
   @override
   void initState() {
@@ -144,11 +146,13 @@ class _QrPageState extends State<QrPage> {
   Future<void> _loadData() async {
     final data = await ProfileService.loadProfile();
     final skills = await ProfileService.loadSkills();
+    final background = await ProfileService.loadCustomBackground();
     if (!mounted) return;
     setState(() {
       _profile = data;
       _value = data[widget.profileKey] ?? '';
       _skills = skills;
+      _backgroundPath = background;
       _loading = false;
     });
   }
@@ -407,7 +411,9 @@ class _QrPageState extends State<QrPage> {
             ),
         ],
       ),
+      // ── Body ───────────────────────────────────────────────────────────────────────
       body: AppBackground(
+        customImagePath: _backgroundPath,
         child: Center(
           child: _loading
               ? const CircularProgressIndicator()

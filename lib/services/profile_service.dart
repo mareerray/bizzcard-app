@@ -18,6 +18,7 @@ class ProfileService {
   static const _profileImage = 'profile_image_path';
   static const _logoImage = 'profile_logo_path';
   static const _skills = 'profile_skills';
+  static const _customBackground = 'profile_custom_background';
 
   // Fields that MUST be filled in before the main card screen is shown.
   // Used by hasCompletedRequiredSetup() to gate first-run access via
@@ -147,5 +148,19 @@ class ProfileService {
     } catch (_) {
       return [];
     }
+  }
+
+  static Future<void> saveCustomBackground(String? path) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (path == null) {
+      await prefs.remove(_customBackground);
+    } else {
+      await prefs.setString(_customBackground, path);
+    }
+  }
+
+  static Future<String?> loadCustomBackground() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_customBackground);
   }
 }
