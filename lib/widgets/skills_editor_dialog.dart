@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/skill.dart';
 import '../data/skill_catalog.dart';
 
-const _kAccent = Color.fromARGB(255, 32, 75, 206);
+const _kAccent = Color.fromARGB(255, 32, 133, 206);
 const _kSurface = Color(0xFF1E1E1E);
 const _kBg = Color(0xFF0A0A0A);
 const _categoryOrder = ['Frontend', 'Backend', 'Database', 'Platform', 'Mobile', 'Other'];

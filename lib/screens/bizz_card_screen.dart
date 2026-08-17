@@ -251,9 +251,9 @@ class _BizzCardScreenState extends State<BizzCardScreen> {
                                   const Icon(
                                     Icons.business_center,
                                     color: Colors.white,
-                                    size: 18,
+                                    size: 16,
                                   ),
-                                  const SizedBox(width: 6),
+                                  const SizedBox(width: 4),
                                   Text(
                                     _company,
                                     style: GoogleFonts.poppins(
