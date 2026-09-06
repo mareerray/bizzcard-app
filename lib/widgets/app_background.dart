@@ -14,7 +14,7 @@ class AppBackground extends StatelessWidget {
   const AppBackground({
     super.key,
     required this.child,
-    this.overlayOpacity = 0.3, // 0.0 = no overlay, 1.0 = solid black
+    this.overlayOpacity = 0.6, // 0.0 = no overlay, 1.0 = solid black
     this.blurSigma = 1.2, // 0.0 = no blur, higher = more blur
     this.customImagePath,
   });
