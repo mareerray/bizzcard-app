@@ -14,13 +14,13 @@ class AppBackground extends StatelessWidget {
   const AppBackground({
     super.key,
     required this.child,
-    this.overlayOpacity = 0.3,
-    this.blurSigma = 4.0,
+    this.overlayOpacity = 0.3, // 0.0 = no overlay, 1.0 = solid black
+    this.blurSigma = 1.2, // 0.0 = no blur, higher = more blur
     this.customImagePath,
   });
 
   Widget _buildBackgroundImage() {
-    const fallback = 'assets/images/bgimg.jpg';
+    const fallback = 'assets/images/bgimgdark.png';
 
     if (customImagePath == null || customImagePath!.isEmpty) {
       return Image.asset(fallback, fit: BoxFit.cover);

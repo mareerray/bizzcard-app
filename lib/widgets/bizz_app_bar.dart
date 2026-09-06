@@ -13,7 +13,7 @@ class BizzAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color(0xFF0A0A0A),
+      // backgroundColor: const Color(0xFF0A0A0A),
       toolbarHeight: 60,
       centerTitle: false,
       title: Text(

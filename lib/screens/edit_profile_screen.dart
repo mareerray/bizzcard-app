@@ -369,7 +369,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _ImagePickerRow(
               label: 'Logo / Brand Image',
               imagePath: _logoImagePath,
-              fallbackAsset: 'assets/images/logo_image.png',
+              fallbackAsset: 'assets/images/bcard_logo.png',
               onTap: () => _pickImage(isProfile: false),
             ),
 
