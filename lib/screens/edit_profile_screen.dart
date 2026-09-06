@@ -397,17 +397,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             _Field(
               controller: _jobTitleController,
-              label: 'Job Title *',
+              label: 'Job Title',
               icon: Icons.work_outline,
-              validator: (v) =>
-                  v!.trim().isEmpty ? 'Job title is required' : null,
+              // validator: (v) =>
+              //     v!.trim().isEmpty ? 'Job title is required' : null,
             ),
             _Field(
               controller: _companyController,
-              label: 'Company *',
+              label: 'Company',
               icon: Icons.business_outlined,
-              validator: (v) =>
-                  v!.trim().isEmpty ? 'Company is required' : null,
+              // validator: (v) =>
+              //     v!.trim().isEmpty ? 'Company is required' : null,
             ),
             _Field(
               controller: _emailController,

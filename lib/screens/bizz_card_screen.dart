@@ -232,44 +232,44 @@ class _BizzCardScreenState extends State<BizzCardScreen> {
                               const SizedBox(height: 26.0),
 
                               // ── Job title ─────────────────────────
-                              Text(
-                                '"$_jobTitle"',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 18.0,
-                                  color: Colors.white70,
-                                  // color: const Color.fromARGB(255, 32, 75, 206),
-                                  fontWeight: FontWeight.w600,
+                              if (_jobTitle.isNotEmpty) ...[
+                                Text(
+                                  '"$_jobTitle"',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18.0,
+                                    color: Colors.white70,
+                                    // color: const Color.fromARGB(255, 32, 75, 206),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 18.0),
-
+                                const SizedBox(height: 18.0),
+                              ],
+                              
                               // ── Company ───────────────────────────
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.business_center,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    _company,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18.0,
+                              if (_company.isNotEmpty) ...[
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.business_center,
                                       color: Colors.white,
-                                      fontWeight: FontWeight.w600,
+                                      size: 16,
                                     ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 18.0),
-                              // _InfoRow(
-                              //     icon: Icons.business_center,
-                              //     text: _company),
-                              // const SizedBox(height: 16.0),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _company,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 18.0,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 18.0),
+                              ],
 
                               // ── Email ─────────────────────────────
                               _InfoRow(

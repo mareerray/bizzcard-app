@@ -26,8 +26,6 @@ class ProfileService {
   // so the card never looks sparse.
   static const List<String> requiredFields = [
     'name',
-    'jobTitle',
-    'company',
     'email',
     'phone',
     'location',
