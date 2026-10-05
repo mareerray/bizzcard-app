@@ -1,6 +1,6 @@
 {
-    "name": "BizzCard",
-    "short_name": "BizzCard",
+    "name": "BizzCardApp",
+    "short_name": "BizzCardApp",
     "description": "Your digital business card",
     "start_url": ".",
     "display": "standalone",
