@@ -25,7 +25,7 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(28),
@@ -37,8 +37,8 @@ class WelcomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 child: Image.asset(
                   'assets/icon/app_icon.png',
-                  width: 72,
-                  height: 72,
+                  width: 154,
+                  height: 154,
                   fit: BoxFit.cover,
                 ),
               ),
