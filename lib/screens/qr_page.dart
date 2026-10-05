@@ -121,7 +121,7 @@ class QrPage extends StatefulWidget {
   State<QrPage> createState() => _QrPageState();
 }
 
-class _QrPageState extends State<QrPage> {         
+class _QrPageState extends State<QrPage> {
   String _value = '';
   bool _loading = true;
   bool _sendingCv = false;
@@ -135,7 +135,6 @@ class _QrPageState extends State<QrPage> {
     _loadData();
     refreshSignal.addListener(_onRefreshSignal);
   }
-
 
   void _onRefreshSignal() {
     _loadData();
@@ -411,7 +410,11 @@ class _QrPageState extends State<QrPage> {
           if (isPortfolioPage)
             TextButton.icon(
               onPressed: _openSkillsEditor,
-              icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.white54),
+              icon: const Icon(
+                Icons.edit_outlined,
+                size: 20,
+                color: Colors.white54,
+              ),
               label: Text(
                 'Skills',
                 style: GoogleFonts.inter(
@@ -430,6 +433,10 @@ class _QrPageState extends State<QrPage> {
           child: _loading
               ? const CircularProgressIndicator()
               : SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    top: isPortfolioPage ? 32 : 0,
+                    bottom: 24,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
