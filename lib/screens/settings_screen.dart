@@ -34,6 +34,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final picked = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
+      maxWidth: 1600,
+      maxHeight: 1600,
     );
     if (picked == null) return;
 
@@ -42,12 +44,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       String saved;
       if (kIsWeb) {
+        const maxBytes = 1500 * 1024; // 1.5 MB
         final bytes = await picked.readAsBytes();
-        if (bytes.length > 900 * 1024) {
+        if (bytes.length > maxBytes) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Please choose an image smaller than ~900 KB.'),
+              SnackBar(
+                content: Text(
+                'This image is too large. Please choose one under '
+                '${(maxBytes / (1024 * 1024)).toStringAsFixed(1)} MB.',
+                ),
               ),
             );
           }
@@ -60,9 +66,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await ProfileService.saveCustomBackground(saved);
       if (mounted) {
         setState(() => _backgroundPath = saved);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Background updated.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Background updated.')));
         await Future.delayed(const Duration(milliseconds: 600));
         if (mounted) Navigator.pop(context);
       }
@@ -122,16 +128,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _pickingBackground ? null : _pickBackground,
             trailing: _pickingBackground
                 ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
-                )
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white54,
+                    ),
+                  )
                 : (_backgroundPath != null
-                  ? IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.white70),
-                      onPressed: _resetBackground,
-                    )
-                  : null),
+                      ? IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.white70,
+                          ),
+                          onPressed: _resetBackground,
+                        )
+                      : null),
           ),
         ],
       ),

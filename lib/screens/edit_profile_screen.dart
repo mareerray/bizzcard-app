@@ -191,16 +191,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final picked = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
+      maxWidth: 1600,
+      maxHeight: 1600,
     );
     if (picked == null) return;
 
+    const maxBytes = 1500 * 1024; // 1.5 MB
+
     if (kIsWeb) {
       final bytes = await picked.readAsBytes();
-      if (bytes.length > 900 * 1024) {
+      if (bytes.length > maxBytes) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Please choose an image smaller than ~900 KB.'),
+            SnackBar(
+              content: Text(
+                'This image is too large. Please choose one under '
+                '${(maxBytes / (1024 * 1024)).toStringAsFixed(1)} MB.',
+              ),
             ),
           );
         }
