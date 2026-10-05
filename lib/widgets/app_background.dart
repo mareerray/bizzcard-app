@@ -20,7 +20,7 @@ class AppBackground extends StatelessWidget {
   });
 
   Widget _buildBackgroundImage() {
-    const fallback = 'assets/images/bgimgdark.png';
+    const fallback = 'assets/images/bgimg.jpeg';
 
     if (customImagePath == null || customImagePath!.isEmpty) {
       return Image.asset(fallback, fit: BoxFit.cover);
